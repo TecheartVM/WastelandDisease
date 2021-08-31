@@ -1,14 +1,14 @@
-package techeart.thrad;
+package techeart.thrad.utils;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import techeart.thrad.capabilities.radcap.IRadiation;
 import techeart.thrad.capabilities.radcap.RadiationCapProvider;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
 
@@ -20,8 +20,11 @@ public class EventHandler
     {
         /*TODO: tick radiation*/
 
-        IRadiation cap = event.player.getCapability(RadiationCapability.RADIATION_CAPABILITY).orElse(null);
-        if(cap != null) System.out.println(cap.getRadLevel());
+        //System.out.println(RadiationManager.getRadLevel(event.player));
+
+        //Utils.raycastSearchForBlock(event.player.level, event.player.blockPosition().below(), new Vec3(0,-1,0), 10);
+
+        if(!event.player.level.isClientSide()) RadiationManager.tickRadiation(event.player);
     }
 
     @SubscribeEvent
@@ -33,7 +36,7 @@ public class EventHandler
             //AttributeMap attributes = player.getAttributes();
             //attributes.getInstance(AttributeRadiationLevel.RADIATION_LEVEL).setBaseValue(Configuration.DEFAULT_RAD_LEVEL);
             /*TODO: Remove this. It used only for testing*/
-            player.getCapability(RadiationCapability.RADIATION_CAPABILITY).orElse(null).setRadLevel(100);
+            RadiationManager.setRadLevel(player, 100);
         }
     }
 

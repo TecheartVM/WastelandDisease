@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import techeart.thrad.Configuration;
+import techeart.thrad.config.Configuration;
 import techeart.thrad.MainClass;
 
 public class RadiationCapability implements IRadiation

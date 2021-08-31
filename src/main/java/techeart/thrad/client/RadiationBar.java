@@ -1,20 +1,26 @@
-package techeart.thrad;
+package techeart.thrad.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import techeart.thrad.config.Configuration;
+import techeart.thrad.MainClass;
+import techeart.thrad.utils.RadiationManager;
 
 @OnlyIn(Dist.CLIENT)
 public class RadiationBar extends Gui
 {
-    private static final ResourceLocation TEXTURE = new ResourceLocation(MainClass.MODID, "textures/gui/radbar" + Configuration.RAD_BAR_SKIN_ID + ".png");
+    //private static final ResourceLocation TEXTURE = new ResourceLocation(MainClass.MODID, "textures/gui/radbar" + Configuration.RAD_BAR_SKIN_ID + ".png");
+    private static final String TEXTURE_PATH = "textures/gui/radbar";
+    private ResourceLocation texture;
 
     private static final int BAR_WIDTH = 16;
     private static final int BAR_HEIGHT = 120;
@@ -26,6 +32,7 @@ public class RadiationBar extends Gui
     public RadiationBar(Minecraft minecraft)
     {
         super(minecraft);
+        texture = new ResourceLocation(MainClass.MODID, TEXTURE_PATH + Configuration.barSkin.get().getId() + ".png");
     }
 
     @SubscribeEvent
@@ -33,8 +40,9 @@ public class RadiationBar extends Gui
     {
         if(event.getType() == RenderGameOverlayEvent.ElementType.LAYER)
         {
-            Player player = minecraft.player;
+            AbstractClientPlayer player = minecraft.player;
             if(player == null) return;
+            if(!RadiationManager.shouldRadBarBeRendered(player)) return;
 
             int radLevel = RadiationManager.getRadLevel(player);
             int max = Configuration.MAX_RAD_LEVEL;
@@ -52,7 +60,7 @@ public class RadiationBar extends Gui
     private void renderBar(int x, int y, int filledPixels, PoseStack matrix)
     {
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, TEXTURE);
+        RenderSystem.setShaderTexture(0, texture);
 
         //draws full bar
         this.blit(matrix, x, y, 0, 0, BAR_WIDTH, BAR_HEIGHT);

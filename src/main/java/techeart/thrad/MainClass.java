@@ -11,20 +11,29 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
-import techeart.thrad.capabilities.radcap.RadiationManager;
+import techeart.thrad.client.RadiationBar;
+import techeart.thrad.config.ConfigHandler;
+import techeart.thrad.network.PacketHandler;
+import techeart.thrad.utils.EventHandler;
+import techeart.thrad.utils.RegistryHandler;
 
 @Mod("thrad")
 public class MainClass
 {
     public static final String MODID = "thrad";
+    private static final String CONFIG_FILE_NAME = "thrad";
 
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public MainClass()
     {
+        ConfigHandler.register();
+
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModifyEntityAttributes);
+
+        ConfigHandler.load(CONFIG_FILE_NAME);
 
         RegistryHandler.register(FMLJavaModLoadingContext.get().getModEventBus());
 
@@ -34,6 +43,7 @@ public class MainClass
 
     private void setup(final FMLCommonSetupEvent event)
     {
+        PacketHandler.register();
         RadiationCapability.register();
     }
 
