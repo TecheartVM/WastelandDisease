@@ -30,7 +30,6 @@ public class MainClass
         ConfigHandler.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setupClient);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModifyEntityAttributes);
 
         ConfigHandler.load(CONFIG_FILE_NAME);
@@ -45,11 +44,6 @@ public class MainClass
     {
         PacketHandler.register();
         RadiationCapability.register();
-    }
-
-    private void setupClient(final FMLClientSetupEvent event)
-    {
-
     }
 
     public void onModifyEntityAttributes(EntityAttributeModificationEvent event)

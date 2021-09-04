@@ -1,5 +1,6 @@
 package techeart.thrad.utils;
 
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -9,6 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import techeart.thrad.MainClass;
 import techeart.thrad.attributes.AttributeRadiationLevel;
+import techeart.thrad.effects.EffectExposure;
 
 public class RegistryHandler
 {
@@ -20,9 +22,13 @@ public class RegistryHandler
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(ForgeRegistries.ATTRIBUTES, MainClass.MODID);
     public static final RegistryObject<Attribute> RADIATION = ATTRIBUTES.register("radiation", AttributeRadiationLevel::new);
 
+    public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MainClass.MODID);
+    public static final RegistryObject<MobEffect> EXPOSURE = EFFECTS.register("exposure", EffectExposure::new);
+
     public static void register(IEventBus eventBus)
     {
         ITEMS.register(eventBus);
         ATTRIBUTES.register(eventBus);
+        EFFECTS.register(eventBus);
     }
 }

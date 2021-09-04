@@ -13,9 +13,9 @@ public class AttributeRadiationLevel extends RangedAttribute
     {
         super(
                 ID,
-                Configuration.DEFAULT_RAD_LEVEL,
-                Configuration.MIN_RAD_LEVEL,
-                Configuration.MAX_RAD_LEVEL
+                Configuration.defaultRadLevel.get(),
+                Configuration.minRadLevel.get(),
+                Configuration.maxRadLevel.get()
         );
     }
 }

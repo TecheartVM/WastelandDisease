@@ -19,7 +19,7 @@ public class RadiationCapability implements IRadiation
 
     private int radLevel;
 
-    public RadiationCapability() { this(Configuration.DEFAULT_RAD_LEVEL); }
+    public RadiationCapability() { this(Configuration.defaultRadLevel.get()); }
     public RadiationCapability(int radLevel) { this.radLevel = radLevel; }
 
     @Override

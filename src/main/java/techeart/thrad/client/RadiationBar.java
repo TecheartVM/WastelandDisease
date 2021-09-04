@@ -10,7 +10,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import techeart.thrad.config.Configuration;
 import techeart.thrad.MainClass;
 import techeart.thrad.utils.RadiationManager;
@@ -45,7 +44,7 @@ public class RadiationBar extends Gui
             if(!RadiationManager.shouldRadBarBeRendered(player)) return;
 
             int radLevel = RadiationManager.getRadLevel(player);
-            int max = Configuration.MAX_RAD_LEVEL;
+            int max = Configuration.maxRadLevel.get();
             int filledPixels = Math.round((float)radLevel/max * ACTIVE_AREA_HEIGHT);
             filledPixels = Math.min(filledPixels, ACTIVE_AREA_HEIGHT);
             filledPixels = Math.max(filledPixels, 0);

@@ -39,16 +39,16 @@ public class ConfigHandler
     public static void loadConfig(ForgeConfigSpec cfg, String fileName)
     {
         String path = FMLPaths.CONFIGDIR.get().resolve(fileName + ".toml").toString();
-        MainClass.LOGGER.info("Loading config: " + path);
         final CommentedFileConfig file = CommentedFileConfig
                 .builder(new File(path))
                 .sync()
                 .autosave()
                 .writingMode(WritingMode.REPLACE)
                 .build();
-        MainClass.LOGGER.info("Built config: " + path);
         file.load();
         MainClass.LOGGER.info("Loaded config: " + path);
         cfg.setConfig(file);
+
+        Configuration.postLoad(file);
     }
 }
