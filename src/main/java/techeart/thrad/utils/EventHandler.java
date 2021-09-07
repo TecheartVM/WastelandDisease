@@ -23,7 +23,6 @@ public class EventHandler
     @SubscribeEvent
     public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event)
     {
-        //TODO: check the capability behaviour after player respawn
 //        Player player = event.getPlayer();
 //        if(!player.level.isClientSide())
 //        {

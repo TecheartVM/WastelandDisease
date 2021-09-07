@@ -2,6 +2,7 @@ package techeart.thrad;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.fml.common.Mod;

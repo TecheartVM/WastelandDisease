@@ -17,6 +17,7 @@ import techeart.thrad.config.Configuration;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.network.packets.PacketSyncRadCap;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,15 +25,18 @@ public class RadiationManager
 {
     private static Random random = new Random();
 
-    public static boolean tickRadiation(Player player)
+    public static void tickRadiation(Player player)
     {
         BlockPos headPos = player.blockPosition().above();
         int exposure = getExposureAtPos(player.level, headPos);
+        updateRadLevel(player, exposure);
+        applyNegativeEffects(player);
+    }
 
-        //System.out.println("Exposure: " + exposure);
-
+    private static void updateRadLevel(Player player, int exposure)
+    {
         MobEffectInstance curEffect = player.getEffect(RegistryHandler.EXPOSURE.get());
-        if(curEffect != null && curEffect.getAmplifier() >= exposure) return false;
+        if(curEffect != null && curEffect.getAmplifier() >= exposure) return;
         if(exposure < 0)
         {
             int radLevel = getRadLevel(player);
@@ -44,14 +48,34 @@ public class RadiationManager
         {
             player.addEffect(new MobEffectInstance(
                     RegistryHandler.EXPOSURE.get(),
-                    600, //TODO: config option
+                    Configuration.exposureDuration.get(),
                     exposure,
                     false,
                     false,
                     false
             ));
         }
-        return true;
+    }
+
+    private static void applyNegativeEffects(Player player)
+    {
+        int radLevel = getRadLevel(player);
+        List<Integer> settings = Configuration.cdRequiredRadLevel.get();
+        for (int i = 3; i >= 0; i--)
+        {
+            if(radLevel >= settings.get(i))
+            {
+                MobEffectInstance curEffect = player.getEffect(RegistryHandler.CELLS_DESTRUCTION.get());
+                if(curEffect != null && curEffect.getAmplifier() >= i) return;
+                player.addEffect(new MobEffectInstance(
+                        RegistryHandler.CELLS_DESTRUCTION.get(),
+                        1200, i,
+                        false,
+                        false,
+                        false));
+                break;
+            }
+        }
     }
 
     /**Gets the pollution exposure level at the specified position in the specified world
@@ -67,7 +91,6 @@ public class RadiationManager
 
         /*--------------check for dimension--------------*/
         String dimId = world.dimension().location().toString();
-        //System.out.println(dimId);
         boolean dimensionListed = Configuration.dimensionsList.get().contains(dimId);
         if(dimensionListed) { if(Configuration.dimensionsBlacklist.get()) return -1; }
         else if(!Configuration.dimensionsBlacklist.get()) return -1;
@@ -79,7 +102,6 @@ public class RadiationManager
         if(biomeRL != null)
         {
             String biomeId = biomeRL.toString();
-            //System.out.println(biomeId);
             boolean biomeListed = false;
             for (Map.Entry<String, Integer> e : Configuration.biomesList.entrySet())
             {
@@ -120,7 +142,6 @@ public class RadiationManager
         if(!canBlockPassRad(hitState)) blocksFound++;
 
         BlockPos newOrigin = Utils.blockPosFromVec3(hit.getLocation().add(dir.normalize()));
-
         int castsLeft = Configuration.maxLayerChecks.get() - 1;
         while (blocksFound < Configuration.maxCoverThickness.get() && castsLeft > 0)
         {
@@ -135,8 +156,6 @@ public class RadiationManager
 
             castsLeft--;
         }
-
-        //System.out.println("Blocks found on the way: " + blocksFound);
 
         return blocksFound;
     }

@@ -10,6 +10,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import techeart.thrad.MainClass;
 import techeart.thrad.attributes.AttributeRadiationLevel;
+import techeart.thrad.effects.EffectCellsDestruction;
 import techeart.thrad.effects.EffectExposure;
 
 public class RegistryHandler
@@ -24,6 +25,7 @@ public class RegistryHandler
 
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MainClass.MODID);
     public static final RegistryObject<MobEffect> EXPOSURE = EFFECTS.register("exposure", EffectExposure::new);
+    public static final RegistryObject<MobEffect> CELLS_DESTRUCTION = EFFECTS.register("cells_destruction", EffectCellsDestruction::new);
 
     public static void register(IEventBus eventBus)
     {

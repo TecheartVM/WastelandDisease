@@ -1,6 +1,7 @@
 package techeart.thrad.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,7 +33,14 @@ public class Configuration
     public static ForgeConfigSpec.IntValue maxLayerChecks;
     public static ForgeConfigSpec.IntValue maxCoverThickness;
     public static ForgeConfigSpec.IntValue maxExposure;
+    public static ForgeConfigSpec.IntValue exposureDuration;
     public static ForgeConfigSpec.IntValue radLevelDecreaseChance;
+    public static ForgeConfigSpec.ConfigValue<List<Integer>> cdRequiredRadLevel;
+    public static ForgeConfigSpec.BooleanValue allowWeakness;
+    public static ForgeConfigSpec.BooleanValue allowMiningFatigue;
+    public static ForgeConfigSpec.BooleanValue allowNausea;
+    public static ForgeConfigSpec.BooleanValue allowBlindness;
+    public static ForgeConfigSpec.IntValue cdTickDelay;
 
     public static ForgeConfigSpec.BooleanValue dimensionsBlacklist;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsList;
@@ -56,8 +64,26 @@ public class Configuration
         serverCfg.pop();
 
         serverCfg.push("effects");
-        maxExposure = serverCfg.comment("The maximum value of exposure for all dimensions and biomes.")
+        maxExposure = serverCfg.comment("The maximum value of exposure for all dimensions and biomes.\n" +
+                "Keeping this value about 2 LESS than 'Balance.cover.max_cover_thickness' is RECOMMENDED for proper system behaviour.")
                 .defineInRange("max_exposure", 5, 1, Integer.MAX_VALUE);
+        exposureDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the EXPOSURE effect when he is in an UNCOVERED POLLUTED area.")
+                .defineInRange("exposure_duration", 600, 60, Integer.MAX_VALUE);
+        serverCfg.push("cells_destruction");
+        cdRequiredRadLevel = serverCfg.comment("LIST of RAD LEVELS REQUIRED for APPLYING a 'Cells Destruction' EFFECT of I, II, III and IV amplifier.")
+                .comment("SYNTAX: [<min rad level for t1>,<min rad level for t2>,<min rad level for t3>,<min rad level for t4>]")
+                .define("required_rad_levels", Lists.newArrayList(100, 150, 170, 185));
+        allowWeakness = serverCfg.comment("If TRUE the RADIATION will be able to cause WEAKNESS effect to player.")
+                .define("allow_weakness", true);
+        allowMiningFatigue = serverCfg.comment("If TRUE the RADIATION will be able to cause MINING FATIGUE effect to player.")
+                .define("allow_mining_fatigue", true);
+        allowNausea = serverCfg.comment("If TRUE the RADIATION will be able to cause NAUSEA effect to player.")
+                .define("allow_nausea", true);
+        allowBlindness = serverCfg.comment("If TRUE the RADIATION will be able to cause BLINDNESS effect to player.")
+                .define("allow_blindness", true);
+        cdTickDelay = serverCfg.comment("BASE DELAY in ticks between 'Cells Destruction' effect UPDATE cycle ITERATIONS.")
+                .defineInRange("tick_delay", 100, 1, Integer.MAX_VALUE);
+        serverCfg.pop();
         serverCfg.pop();
 
         serverCfg.push("measurements");
@@ -83,7 +109,8 @@ public class Configuration
                 .defineInRange("next_layer_distance", 6, 3, 20);
         maxLayerChecks = serverCfg.comment("How many TIMES the system will try to find ADDITIONAL LAYER of player COVER.")
                 .defineInRange("max_layer_checks", 10, 1, 20);
-        maxCoverThickness = serverCfg.comment("The maximum AMOUNT of COVER LAYERS that WILL AFFECT a total EXPOSURE to the player.")
+        maxCoverThickness = serverCfg.comment("The maximum AMOUNT of COVER LAYERS that WILL AFFECT a total EXPOSURE to the player.\n" +
+                "Keeping this value about 2 MORE than 'Balance.effects.max_exposure' is RECOMMENDED for proper system behaviour.")
                 .defineInRange("max_cover_thickness", 7, 0, 255);
         serverCfg.pop();
 
