@@ -11,8 +11,10 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fml.ModList;
 import techeart.thrad.capabilities.radcap.IRadiation;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
+import techeart.thrad.compat.CompatCurios;
 import techeart.thrad.config.Configuration;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.network.packets.PacketSyncRadCap;
@@ -198,6 +200,7 @@ public class RadiationManager
     /**Determines if the player should see the Radiation Bar on his HUD.*/
     public static boolean shouldRadBarBeRendered(Player player)
     {
-        return Configuration.barMode.get().getShouldDispayCheck().apply(player);
+        return Configuration.barMode.get().getShouldDispayCheck().apply(player) ||
+                (ModList.get().isLoaded("curios") && !CompatCurios.getRadMeter(player).isEmpty());
     }
 }

@@ -8,11 +8,13 @@ import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
 import techeart.thrad.client.RadiationBar;
+import techeart.thrad.compat.CompatCurios;
 import techeart.thrad.config.ConfigHandler;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.utils.EventHandler;
@@ -31,6 +33,7 @@ public class MainClass
         ConfigHandler.register();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueIMCs);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onModifyEntityAttributes);
 
         ConfigHandler.load(CONFIG_FILE_NAME);
@@ -45,6 +48,11 @@ public class MainClass
     {
         PacketHandler.register();
         RadiationCapability.register();
+    }
+
+    private void enqueueIMCs(InterModEnqueueEvent event)
+    {
+        new CompatCurios().sendIMC();
     }
 
     public void onModifyEntityAttributes(EntityAttributeModificationEvent event)
