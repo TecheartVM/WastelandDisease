@@ -1,6 +1,5 @@
 package techeart.thrad.effects;
 
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -9,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import techeart.thrad.config.Configuration;
+import techeart.thrad.utils.RegistryHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,6 @@ import java.util.Random;
 
 public class EffectCellsDestruction extends MobEffect
 {
-    public static final DamageSource DAMAGE_SOURCE_RADIATION = (new DamageSource("cells_destruction")).bypassArmor();
-
     private static Random random = new Random();
 
     public EffectCellsDestruction() { super(MobEffectCategory.HARMFUL, 0x803c00); }
@@ -31,9 +29,9 @@ public class EffectCellsDestruction extends MobEffect
         if(random.nextInt((int) (100 - Math.pow(4, amplifier))) == 0)
         {
             applyAdditionalEffects(entity, amplifier);
-            if(damage > 0 && amplifier == 2) entity.hurt(DAMAGE_SOURCE_RADIATION, damage);
+            if(damage > 0 && amplifier == 2) entity.hurt(RegistryHandler.DAMAGE_SOURCE_RADIATION, damage);
         }
-        if(damage > 0 && amplifier == 3) entity.hurt(DAMAGE_SOURCE_RADIATION, damage);
+        if(damage > 0 && amplifier == 3) entity.hurt(RegistryHandler.DAMAGE_SOURCE_RADIATION, damage);
     }
 
     protected void applyAdditionalEffects(LivingEntity entity, int cdAmp)

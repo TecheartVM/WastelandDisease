@@ -19,7 +19,7 @@ public class RadiationBar extends Gui
 {
     //private static final ResourceLocation TEXTURE = new ResourceLocation(MainClass.MODID, "textures/gui/radbar" + Configuration.RAD_BAR_SKIN_ID + ".png");
     private static final String TEXTURE_PATH = "textures/gui/radbar";
-    private ResourceLocation texture;
+    private final ResourceLocation texture;
 
     private static final int BAR_WIDTH = 16;
     private static final int BAR_HEIGHT = 120;

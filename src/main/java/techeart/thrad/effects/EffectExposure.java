@@ -18,18 +18,15 @@ public class EffectExposure extends MobEffect
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier)
     {
-        if(entity instanceof Player)
-        {
-            Player player = (Player)entity;
+        if(entity instanceof Player player)
             RadiationManager.setRadLevel(player, RadiationManager.getRadLevel(player) + 1);
-        }
     }
 
     @Override
     public boolean isDurationEffectTick(int duration, int amplifier)
     {
         int i = Configuration.maxRadLevel.get() - Configuration.minRadLevel.get();
-        float f = i / 6000f; //6000 ticks = 5 minutes
+        float f = i / (float)Configuration.fullBarReachTime.get();
         i = (int) Math.ceil(1/f);
         if(amplifier <= Configuration.maxExposure.get()) i = i << (Configuration.maxExposure.get() - amplifier);
         else i = i >> amplifier - Configuration.maxExposure.get();

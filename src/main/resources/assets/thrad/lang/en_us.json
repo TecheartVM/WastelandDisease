@@ -1,3 +1,8 @@
 {
-  "item.thrad.rad_meter": "Pollution Level Meter"
+  "item.thrad.rad_meter": "Pollution Level Meter",
+
+  "effect.thrad.exposure": "Environment Exposure",
+  "effect.thrad.cells_destruction": "Cells Destruction",
+
+  "death.attack.cells_destruction": "%1$s died due to organ failure"
 }

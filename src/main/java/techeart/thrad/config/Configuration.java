@@ -34,6 +34,7 @@ public class Configuration
     public static ForgeConfigSpec.IntValue maxCoverThickness;
     public static ForgeConfigSpec.IntValue maxExposure;
     public static ForgeConfigSpec.IntValue exposureDuration;
+    public static ForgeConfigSpec.IntValue fullBarReachTime;
     public static ForgeConfigSpec.IntValue radLevelDecreaseChance;
     public static ForgeConfigSpec.ConfigValue<List<Integer>> cdRequiredRadLevel;
     public static ForgeConfigSpec.BooleanValue allowWeakness;
@@ -93,6 +94,8 @@ public class Configuration
                 .defineInRange("max_rad_level", 200, 100, Integer.MAX_VALUE);
         defaultRadLevel = serverCfg.comment("Default pollution level.")
                 .defineInRange("default_rad_level", 10, 0, Integer.MAX_VALUE);
+        fullBarReachTime = serverCfg.comment("TIME in ticks for which the HUD pollution level BAR being completely FILLED.")
+                .defineInRange("full_bar_reach_time", 6000, 100, Integer.MAX_VALUE);
         serverCfg.pop();
 
         serverCfg.push("world");

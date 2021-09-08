@@ -1,5 +1,6 @@
 package techeart.thrad.utils;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.CreativeModeTab;
@@ -26,6 +27,8 @@ public class RegistryHandler
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MainClass.MODID);
     public static final RegistryObject<MobEffect> EXPOSURE = EFFECTS.register("exposure", EffectExposure::new);
     public static final RegistryObject<MobEffect> CELLS_DESTRUCTION = EFFECTS.register("cells_destruction", EffectCellsDestruction::new);
+
+    public static final DamageSource DAMAGE_SOURCE_RADIATION = (new DamageSource("cells_destruction")).bypassArmor();
 
     public static void register(IEventBus eventBus)
     {
