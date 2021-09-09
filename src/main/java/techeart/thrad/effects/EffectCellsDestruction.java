@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import techeart.thrad.config.Configuration;
 import techeart.thrad.utils.RegistryHandler;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +22,7 @@ public class EffectCellsDestruction extends MobEffect
     public EffectCellsDestruction() { super(MobEffectCategory.HARMFUL, 0x803c00); }
 
     @Override
-    public void applyEffectTick(LivingEntity entity, int amplifier)
+    public void applyEffectTick(@Nonnull LivingEntity entity, int amplifier)
     {
         if(entity instanceof Player && ((Player)entity).isCreative()) return;
         boolean flag = false;

@@ -4,5 +4,13 @@
   "effect.thrad.exposure": "Environment Exposure",
   "effect.thrad.cells_destruction": "Cells Destruction",
 
-  "death.attack.cells_destruction": "%1$s died due to organ failure"
+  "death.attack.cells_destruction": "%1$s died due to organ failure",
+
+  "command.thrad.rad_level.set.multiple": "Set rad level of %s players to %s",
+  "command.thrad.rad_level.set.single": "Set rad level of %s to %s",
+  "command.thrad.rad_level.reset.multiple": "Reset rad level of %s players",
+  "command.thrad.rad_level.reset.single": "Reset rad level of %s",
+  "command.thrad.rad_level.add.multiple": "Rad level of %s players increased by %s",
+  "command.thrad.rad_level.add.single": "Rad level of %s increased by %s",
+  "command.thrad.rad_level.get": "Rad level of %s is equal to %s"
 }
