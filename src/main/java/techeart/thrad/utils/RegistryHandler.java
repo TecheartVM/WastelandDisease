@@ -1,5 +1,7 @@
 package techeart.thrad.utils;
 
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -11,6 +13,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import techeart.thrad.MainClass;
 import techeart.thrad.attributes.AttributeRadiationLevel;
+import techeart.thrad.commands.CommandRadLevelAction;
 import techeart.thrad.effects.EffectCellsDestruction;
 import techeart.thrad.effects.EffectExposure;
 
@@ -35,5 +38,10 @@ public class RegistryHandler
         ITEMS.register(eventBus);
         ATTRIBUTES.register(eventBus);
         EFFECTS.register(eventBus);
+    }
+
+    public static void registerCustomCommands(CommandDispatcher<CommandSourceStack> dispatcher)
+    {
+        CommandRadLevelAction.register(dispatcher);
     }
 }

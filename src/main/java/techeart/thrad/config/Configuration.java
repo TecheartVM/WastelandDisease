@@ -36,11 +36,14 @@ public class Configuration
     public static ForgeConfigSpec.IntValue exposureDuration;
     public static ForgeConfigSpec.IntValue fullBarReachTime;
     public static ForgeConfigSpec.IntValue radLevelDecreaseChance;
+    public static ForgeConfigSpec.IntValue cdDuration;
     public static ForgeConfigSpec.ConfigValue<List<Integer>> cdRequiredRadLevel;
     public static ForgeConfigSpec.BooleanValue allowWeakness;
     public static ForgeConfigSpec.BooleanValue allowMiningFatigue;
     public static ForgeConfigSpec.BooleanValue allowNausea;
     public static ForgeConfigSpec.BooleanValue allowBlindness;
+    public static ForgeConfigSpec.IntValue cdBaseHurtChance;
+    public static ForgeConfigSpec.IntValue cdSubeffectsDuration;
     public static ForgeConfigSpec.IntValue cdTickDelay;
 
     public static ForgeConfigSpec.BooleanValue dimensionsBlacklist;
@@ -71,9 +74,13 @@ public class Configuration
         exposureDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the EXPOSURE effect when he is in an UNCOVERED POLLUTED area.")
                 .defineInRange("exposure_duration", 600, 60, Integer.MAX_VALUE);
         serverCfg.push("cells_destruction");
+        cdDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the CELLS DESTRUCTION effect.\n" +
+                "when reaches certain 'effects.cells_destruction.required_rad_levels' RAD LEVEL.")
+                .defineInRange("duration", 1200, 60, Integer.MAX_VALUE);
         cdRequiredRadLevel = serverCfg.comment("LIST of RAD LEVELS REQUIRED for APPLYING a 'Cells Destruction' EFFECT of I, II, III and IV amplifier.")
                 .comment("SYNTAX: [<min rad level for t1>,<min rad level for t2>,<min rad level for t3>,<min rad level for t4>]")
-                .define("required_rad_levels", Lists.newArrayList(100, 150, 170, 185));
+                .define("required_rad_levels", Lists.newArrayList(50, 100, 150, 185));
+        serverCfg.push("subeffects");
         allowWeakness = serverCfg.comment("If TRUE the RADIATION will be able to cause WEAKNESS effect to player.")
                 .define("allow_weakness", true);
         allowMiningFatigue = serverCfg.comment("If TRUE the RADIATION will be able to cause MINING FATIGUE effect to player.")
@@ -82,8 +89,15 @@ public class Configuration
                 .define("allow_nausea", true);
         allowBlindness = serverCfg.comment("If TRUE the RADIATION will be able to cause BLINDNESS effect to player.")
                 .define("allow_blindness", true);
-        cdTickDelay = serverCfg.comment("BASE DELAY in ticks between 'Cells Destruction' effect UPDATE cycle ITERATIONS.")
-                .defineInRange("tick_delay", 100, 1, Integer.MAX_VALUE);
+        cdSubeffectsDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the CELLS DESTRUCTION effect SUB EFFECTS.")
+                .defineInRange("subeffects_duration", 600, 60, Integer.MAX_VALUE);
+        serverCfg.pop();
+        cdBaseHurtChance = serverCfg.comment("BASE cells destruction SUB EFFECTS applying CHANCE.\n" +
+                "Always used with the multiplier equal to the current 'Cells Destruction' effect amplifier.")
+                .defineInRange("subeffects_chance", 200, 1, 10000);
+        cdTickDelay = serverCfg.comment("BASE DELAY in ticks between 'Cells Destruction' effect UPDATE cycle ITERATIONS.\n" +
+                "Divided by 2 for every amplifier level.")
+                .defineInRange("tick_delay", 160, 1, Integer.MAX_VALUE);
         serverCfg.pop();
         serverCfg.pop();
 

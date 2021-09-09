@@ -24,20 +24,20 @@ public class EffectCellsDestruction extends MobEffect
     public void applyEffectTick(LivingEntity entity, int amplifier)
     {
         if(entity instanceof Player && ((Player)entity).isCreative()) return;
-
-        float damage = entity.level.getDifficulty().getId();
-        if(random.nextInt((int) (100 - Math.pow(4, amplifier))) == 0)
+        boolean flag = false;
+        if(random.nextInt(10000) < (amplifier + 1) * Configuration.cdBaseHurtChance.get())
         {
             applyAdditionalEffects(entity, amplifier);
-            if(damage > 0 && amplifier == 2) entity.hurt(RegistryHandler.DAMAGE_SOURCE_RADIATION, damage);
+            flag = true;
         }
-        if(damage > 0 && amplifier == 3) entity.hurt(RegistryHandler.DAMAGE_SOURCE_RADIATION, damage);
+        float damage = entity.level.getDifficulty().getId();
+        if(damage > 0 && (amplifier > 2 || (flag && amplifier == 2)))
+            entity.hurt(RegistryHandler.DAMAGE_SOURCE_RADIATION, damage);
     }
 
     protected void applyAdditionalEffects(LivingEntity entity, int cdAmp)
     {
-        int difficulty = entity.level.getDifficulty().getId();
-        int duration = (600 * Math.max(1, difficulty)) >> Math.min(cdAmp, 2);
+        int duration = Configuration.cdSubeffectsDuration.get();
         int amplifier = Math.max(cdAmp - 1, 0);
         if(Configuration.allowWeakness.get())
             entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, false, false, false));

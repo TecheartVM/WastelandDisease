@@ -10,8 +10,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import techeart.thrad.compat.CompatCurios;
 import techeart.thrad.config.Configuration;
 import techeart.thrad.MainClass;
 import techeart.thrad.utils.RadiationManager;
@@ -19,7 +17,6 @@ import techeart.thrad.utils.RadiationManager;
 @OnlyIn(Dist.CLIENT)
 public class RadiationBar extends Gui
 {
-    //private static final ResourceLocation TEXTURE = new ResourceLocation(MainClass.MODID, "textures/gui/radbar" + Configuration.RAD_BAR_SKIN_ID + ".png");
     private static final String TEXTURE_PATH = "textures/gui/radbar";
     private final ResourceLocation texture;
 

@@ -71,7 +71,7 @@ public class RadiationManager
                 if(curEffect != null && curEffect.getAmplifier() >= i) return;
                 player.addEffect(new MobEffectInstance(
                         RegistryHandler.CELLS_DESTRUCTION.get(),
-                        1200, i,
+                        Configuration.cdDuration.get(), i,
                         false,
                         false,
                         false));

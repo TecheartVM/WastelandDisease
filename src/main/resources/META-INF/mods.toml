@@ -3,7 +3,7 @@ loaderVersion="[37,)"
 license="All rights reserved"
 [[mods]]
 modId="thrad"
-version="${file.jarVersion}"
+version="1.17.1-0.1.0"
 displayName="Wasteland Disease"
 logoFile="modicon.png"
 credits="Thanks DrViruss for the advice."
