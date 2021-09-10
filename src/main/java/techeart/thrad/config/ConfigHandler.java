@@ -43,6 +43,7 @@ public class ConfigHandler
                 .builder(new File(path))
                 .sync()
                 .autosave()
+                .autoreload()
                 .writingMode(WritingMode.REPLACE)
                 .build();
         file.load();

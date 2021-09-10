@@ -1,4 +1,4 @@
-package techeart.thrad.client;
+package techeart.thrad.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -12,7 +12,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import techeart.thrad.config.Configuration;
 import techeart.thrad.MainClass;
-import techeart.thrad.utils.RadiationManager;
+import techeart.thrad.RadiationManager;
 
 @OnlyIn(Dist.CLIENT)
 public class RadiationBar extends Gui

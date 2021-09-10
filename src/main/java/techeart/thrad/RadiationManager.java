@@ -1,10 +1,13 @@
-package techeart.thrad.utils;
+package techeart.thrad;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
@@ -16,8 +19,11 @@ import techeart.thrad.capabilities.radcap.IRadiation;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
 import techeart.thrad.compat.CompatCurios;
 import techeart.thrad.config.Configuration;
+import techeart.thrad.items.HazmatSuitItem;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.network.packets.PacketSyncRadCap;
+import techeart.thrad.utils.RegistryHandler;
+import techeart.thrad.utils.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +35,19 @@ public class RadiationManager
 
     public static void tickRadiation(Player player)
     {
-        BlockPos headPos = player.blockPosition().above();
-        int exposure = getExposureAtPos(player.level, headPos);
+        int exposure;
+
+        AttributeInstance radResistAttribute = player.getAttribute(RegistryHandler.RAD_RESISTANCE.get());
+        int radResist = radResistAttribute == null ? 0 : (int) radResistAttribute.getValue();
+
+        if(radResist >= 100) exposure = -1;
+        else
+        {
+            BlockPos headPos = player.blockPosition().above();
+            exposure = getExposureAtPos(player.level, headPos);
+            exposure -= Math.round((float)radResist / (100f / Configuration.maxExposure.get()));
+        }
+
         updateRadLevel(player, exposure);
         applyNegativeEffects(player);
     }
@@ -202,5 +219,46 @@ public class RadiationManager
     {
         return Configuration.barMode.get().getShouldDispayCheck().apply(player) ||
                 (ModList.get().isLoaded("curios") && !CompatCurios.getRadMeter(player).isEmpty());
+    }
+
+    public static boolean hasFullHazmatSuit(Player player)
+    {
+        boolean result = true;
+        Iterable<ItemStack> armorItems = player.getArmorSlots();
+        for (ItemStack slot : armorItems)
+        {
+            if(slot.isEmpty() || !(slot.getItem() instanceof HazmatSuitItem))
+            {
+                result = false;
+                break;
+            }
+        }
+
+        return result ||
+                (ModList.get().isLoaded("curios") && CompatCurios.hasFullHazmatSuit(player));
+    }
+
+    /**Adds and removes the 'rad_resistance' attribute modifiers depending on player's equipment.*/
+    public static void manageRadResistModifiers(Player player)
+    {
+        AttributeInstance radResist = player.getAttribute(RegistryHandler.RAD_RESISTANCE.get());
+        if(radResist != null)
+        {
+            if(RadiationManager.hasFullHazmatSuit(player)
+                    && radResist.getModifier(HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID) == null)
+            {
+                radResist.addTransientModifier(
+                        new AttributeModifier(
+                                HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID,
+                                "Full hazmat suit protection",
+                                Configuration.hazmatRadResist.get(),
+                                AttributeModifier.Operation.ADDITION)
+                );
+            }
+            else
+            {
+                radResist.removeModifier(HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID);
+            }
+        }
     }
 }

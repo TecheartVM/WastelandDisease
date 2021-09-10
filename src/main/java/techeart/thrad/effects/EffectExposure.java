@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import techeart.thrad.config.Configuration;
-import techeart.thrad.utils.RadiationManager;
+import techeart.thrad.RadiationManager;
 
 import java.util.ArrayList;
 import java.util.List;

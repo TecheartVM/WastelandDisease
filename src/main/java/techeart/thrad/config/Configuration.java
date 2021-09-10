@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec;
+import techeart.thrad.commands.CommandRadLevelAction;
 import techeart.thrad.utils.RegistryHandler;
 
 import java.util.ArrayList;
@@ -46,6 +47,9 @@ public class Configuration
     public static ForgeConfigSpec.IntValue cdSubeffectsDuration;
     public static ForgeConfigSpec.IntValue cdTickDelay;
 
+    public static ForgeConfigSpec.IntValue hazmatDurabilityMult;
+    public static ForgeConfigSpec.IntValue hazmatRadResist;
+
     public static ForgeConfigSpec.BooleanValue dimensionsBlacklist;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsList;
 
@@ -65,6 +69,14 @@ public class Configuration
         serverCfg.push("info");
         barMode = serverCfg.comment("HUD pollution level bar DISPLAY MODE.")
                 .defineEnum("bar_display_mode", BarDisplayModes.HAND);
+        serverCfg.pop();
+
+        serverCfg.push("items");
+        hazmatDurabilityMult = serverCfg.comment("Hazmat suit durability MULTIPLIER.\n" +
+                "Base armor durability values is [13,15,16,11].")
+                .defineInRange("hazmat_durability", 8, 1, Integer.MAX_VALUE);
+        hazmatRadResist = serverCfg.comment("Hazmat suit rad resistance modifier value.")
+                .defineInRange("hazmat_rad_resist", 80, 0, 100);
         serverCfg.pop();
 
         serverCfg.push("effects");

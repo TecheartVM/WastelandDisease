@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;
-import techeart.thrad.utils.RadiationManager;
+import techeart.thrad.RadiationManager;
 
 import java.util.function.Supplier;
 

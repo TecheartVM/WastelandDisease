@@ -12,7 +12,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import techeart.thrad.config.Configuration;
-import techeart.thrad.utils.RadiationManager;
+import techeart.thrad.RadiationManager;
 
 import java.util.Collection;
 
