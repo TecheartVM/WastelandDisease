@@ -1,25 +1,47 @@
 package techeart.thrad.utils;
 
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import techeart.thrad.RadiationManager;
+import techeart.thrad.RegistryHandler;
 import techeart.thrad.capabilities.radcap.RadiationCapProvider;
 import techeart.thrad.capabilities.radcap.RadiationCapability;
+import techeart.thrad.config.Configuration;
 
 @Mod.EventBusSubscriber(bus=Mod.EventBusSubscriber.Bus.MOD)
 public class EventHandler
 {
+    @SubscribeEvent
+    public void onPlayerFinishUseItem(LivingEntityUseItemEvent.Finish event)
+    {
+        Item used = event.getItem().getItem();
+        KeyValuePair<Integer, Integer> durAndMod = Configuration.getAntiradConsumables().get(used.getRegistryName().toString());
+        if(durAndMod == null) return;
+        event.getEntityLiving().addEffect(new MobEffectInstance(
+                    RegistryHandler.EFFECT_RAD_RESISTANCE.get(),
+                    durAndMod.getKey(),
+                    durAndMod.getValue(),
+                    false,
+                    false,
+                    false
+                )
+        );
+    }
+
     public void onModifyEntityAttributes(EntityAttributeModificationEvent event)
     {
-        event.add(EntityType.PLAYER, RegistryHandler.RAD_RESISTANCE.get());
+        event.add(EntityType.PLAYER, RegistryHandler.ATTR_RAD_RESISTANCE.get());
     }
 
     @SubscribeEvent
@@ -41,18 +63,6 @@ public class EventHandler
     {
         RegistryHandler.registerCustomCommands(event.getDispatcher());
     }
-
-//    @SubscribeEvent
-//    public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event)
-//    {
-//        Player player = event.getPlayer();
-//        if(!player.level.isClientSide())
-//        {
-//            AttributeMap attributes = player.getAttributes();
-////            attributes.getInstance(RegistryHandler.RAD_RESISTANCE.get()).setBaseValue(10);
-//            System.out.println(attributes.getInstance(RegistryHandler.RAD_RESISTANCE.get()));
-//        }
-//    }
 
     @SubscribeEvent
     public void onAttachEntityCaps(AttachCapabilitiesEvent<Entity> event)

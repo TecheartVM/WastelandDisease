@@ -3,6 +3,7 @@ package techeart.thrad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -22,7 +23,6 @@ import techeart.thrad.config.Configuration;
 import techeart.thrad.items.HazmatSuitItem;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.network.packets.PacketSyncRadCap;
-import techeart.thrad.utils.RegistryHandler;
 import techeart.thrad.utils.Utils;
 
 import java.util.List;
@@ -31,13 +31,11 @@ import java.util.Random;
 
 public class RadiationManager
 {
-    private static Random random = new Random();
-
     public static void tickRadiation(Player player)
     {
         int exposure;
 
-        AttributeInstance radResistAttribute = player.getAttribute(RegistryHandler.RAD_RESISTANCE.get());
+        AttributeInstance radResistAttribute = player.getAttribute(RegistryHandler.ATTR_RAD_RESISTANCE.get());
         int radResist = radResistAttribute == null ? 0 : (int) radResistAttribute.getValue();
 
         if(radResist >= 100) exposure = -1;
@@ -54,19 +52,22 @@ public class RadiationManager
 
     private static void updateRadLevel(Player player, int exposure)
     {
-        MobEffectInstance curEffect = player.getEffect(RegistryHandler.EXPOSURE.get());
+        MobEffectInstance curEffect = player.getEffect(RegistryHandler.EFFECT_EXPOSURE.get());
         if(curEffect != null && curEffect.getAmplifier() >= exposure) return;
         if(exposure < 0)
         {
-            int radLevel = getRadLevel(player);
-            if (radLevel > Configuration.defaultRadLevel.get() && radLevel > Configuration.minRadLevel.get())
-                if (random.nextInt(10000) < Configuration.radLevelDecreaseChance.get())
+            int delay = Configuration.radLevelNaturalDecrDelay.get();
+            if(player.tickCount % delay == delay - 1)
+            {
+                int radLevel = getRadLevel(player);
+                if (radLevel > Configuration.defaultRadLevel.get() && radLevel > Configuration.minRadLevel.get())
                     setRadLevel(player, radLevel - 1);
+            }
         }
         else
         {
             player.addEffect(new MobEffectInstance(
-                    RegistryHandler.EXPOSURE.get(),
+                    RegistryHandler.EFFECT_EXPOSURE.get(),
                     Configuration.exposureDuration.get(),
                     exposure,
                     false,
@@ -84,10 +85,10 @@ public class RadiationManager
         {
             if(radLevel >= settings.get(i))
             {
-                MobEffectInstance curEffect = player.getEffect(RegistryHandler.CELLS_DESTRUCTION.get());
+                MobEffectInstance curEffect = player.getEffect(RegistryHandler.EFFECT_CELLS_DESTRUCTION.get());
                 if(curEffect != null && curEffect.getAmplifier() >= i) return;
                 player.addEffect(new MobEffectInstance(
-                        RegistryHandler.CELLS_DESTRUCTION.get(),
+                        RegistryHandler.EFFECT_CELLS_DESTRUCTION.get(),
                         Configuration.cdDuration.get(), i,
                         false,
                         false,
@@ -122,7 +123,7 @@ public class RadiationManager
         {
             String biomeId = biomeRL.toString();
             boolean biomeListed = false;
-            for (Map.Entry<String, Integer> e : Configuration.biomesList.entrySet())
+            for (Map.Entry<String, Integer> e : Configuration.getBiomesList().entrySet())
             {
                 if(e.getKey().equals(biomeId))
                 {
@@ -221,43 +222,45 @@ public class RadiationManager
                 (ModList.get().isLoaded("curios") && !CompatCurios.getRadMeter(player).isEmpty());
     }
 
-    public static boolean hasFullHazmatSuit(Player player)
+    /**Returns the average player equipment rad resistance value or 0 if there is no full suit.*/
+    public static int getPlayerEquipmentRadResist(Player player)
     {
-        boolean result = true;
+        int result = 0;
         Iterable<ItemStack> armorItems = player.getArmorSlots();
         for (ItemStack slot : armorItems)
         {
-            if(slot.isEmpty() || !(slot.getItem() instanceof HazmatSuitItem))
+            if(slot.isEmpty()) return 0;
+            else
             {
-                result = false;
-                break;
+                String itemId = slot.getItem().getRegistryName().toString();
+                Integer i = Configuration.getAntiradEquipmentSettings().get(itemId);
+                if(i == null || i == 0) return 0;
+                if(i < 0) i = 80;
+                result += i;
             }
         }
-
-        return result ||
-                (ModList.get().isLoaded("curios") && CompatCurios.hasFullHazmatSuit(player));
+        return Mth.clamp(Math.round(result / 4f), 0, 100);
     }
 
     /**Adds and removes the 'rad_resistance' attribute modifiers depending on player's equipment.*/
     public static void manageRadResistModifiers(Player player)
     {
-        AttributeInstance radResist = player.getAttribute(RegistryHandler.RAD_RESISTANCE.get());
+        AttributeInstance radResist = player.getAttribute(RegistryHandler.ATTR_RAD_RESISTANCE.get());
         if(radResist != null)
         {
-            if(RadiationManager.hasFullHazmatSuit(player)
-                    && radResist.getModifier(HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID) == null)
-            {
-                radResist.addTransientModifier(
-                        new AttributeModifier(
-                                HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID,
-                                "Full hazmat suit protection",
-                                Configuration.hazmatRadResist.get(),
-                                AttributeModifier.Operation.ADDITION)
-                );
-            }
-            else
-            {
+            if(radResist.getModifier(HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID) != null)
                 radResist.removeModifier(HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID);
+
+            int equipmentResist = getPlayerEquipmentRadResist(player);
+            if(equipmentResist > 0)
+            {
+                    radResist.addTransientModifier(
+                            new AttributeModifier(
+                                    HazmatSuitItem.FULL_SUIT_ATTRIBUTE_MOD_UUID,
+                                    "Full rad protective suit",
+                                    equipmentResist,
+                                    AttributeModifier.Operation.ADDITION)
+                    );
             }
         }
     }

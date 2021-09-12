@@ -1,6 +1,7 @@
 package techeart.thrad.config;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.world.InteractionHand;
@@ -8,14 +9,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec;
-import techeart.thrad.commands.CommandRadLevelAction;
-import techeart.thrad.utils.RegistryHandler;
+import techeart.thrad.utils.KeyValuePair;
+import techeart.thrad.RegistryHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 public class Configuration
 {
@@ -23,7 +23,18 @@ public class Configuration
     public static ForgeConfigSpec.EnumValue<BarSkins> barSkin;
 
     //SERVER settings
+    /*TODO: implement this in future*/
+    public static ForgeConfigSpec.BooleanValue enableRadMeter;
+    public static ForgeConfigSpec.BooleanValue enableIodineTablet;
+    public static ForgeConfigSpec.BooleanValue enableHazmat;
+
     public static ForgeConfigSpec.EnumValue<BarDisplayModes> barMode;
+
+    public static ForgeConfigSpec.BooleanValue allowWeakness;
+    public static ForgeConfigSpec.BooleanValue allowMiningFatigue;
+    public static ForgeConfigSpec.BooleanValue allowNausea;
+    public static ForgeConfigSpec.BooleanValue allowBlindness;
+
     public static ForgeConfigSpec.IntValue minRadLevel;
     public static ForgeConfigSpec.IntValue maxRadLevel;
     public static ForgeConfigSpec.IntValue defaultRadLevel;
@@ -36,38 +47,79 @@ public class Configuration
     public static ForgeConfigSpec.IntValue maxExposure;
     public static ForgeConfigSpec.IntValue exposureDuration;
     public static ForgeConfigSpec.IntValue fullBarReachTime;
-    public static ForgeConfigSpec.IntValue radLevelDecreaseChance;
+    public static ForgeConfigSpec.IntValue radLevelNaturalDecrDelay;
     public static ForgeConfigSpec.IntValue cdDuration;
-    public static ForgeConfigSpec.ConfigValue<List<Integer>> cdRequiredRadLevel;
-    public static ForgeConfigSpec.BooleanValue allowWeakness;
-    public static ForgeConfigSpec.BooleanValue allowMiningFatigue;
-    public static ForgeConfigSpec.BooleanValue allowNausea;
-    public static ForgeConfigSpec.BooleanValue allowBlindness;
     public static ForgeConfigSpec.IntValue cdBaseHurtChance;
     public static ForgeConfigSpec.IntValue cdSubeffectsDuration;
     public static ForgeConfigSpec.IntValue cdTickDelay;
-
     public static ForgeConfigSpec.IntValue hazmatDurabilityMult;
-    public static ForgeConfigSpec.IntValue hazmatRadResist;
 
+    public static ForgeConfigSpec.ConfigValue<List<Integer>> cdRequiredRadLevel;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> suitList;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> antiradList;
     public static ForgeConfigSpec.BooleanValue dimensionsBlacklist;
     public static ForgeConfigSpec.ConfigValue<List<? extends String>> dimensionsList;
-
     public static ForgeConfigSpec.BooleanValue biomesBlacklist;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> biomesSettings;
-    /**This map is populated with biome data from the config file after it is loaded.*/
-    public static Map<String, Integer> biomesList;
+
+    private static Map<String, Integer> biomesList;
+    public static Map<String, Integer> getBiomesList()
+    {
+        if(biomesList == null)
+            biomesList = convertConfigList(biomesSettings.get(), maxExposure.get());
+        return biomesList;
+    }
+
+    private static Map<String, Integer> antiradEquipmentSettings;
+    public static Map<String, Integer> getAntiradEquipmentSettings()
+    {
+        if(antiradEquipmentSettings == null)
+            antiradEquipmentSettings = convertConfigList(suitList.get(), -1);
+        return antiradEquipmentSettings;
+    }
+
+    private static Map<String, KeyValuePair<Integer, Integer>> antiradConsumables;
+    public static Map<String, KeyValuePair<Integer, Integer>> getAntiradConsumables()
+    {
+        if(antiradConsumables == null)
+        {
+            antiradConsumables = Maps.newHashMap();
+            for (Object s : antiradList.get())
+            {
+                if(!(s instanceof String)) continue;
+                String[] spl = ((String) s).split(",");
+                if(spl.length == 1)
+                {
+                    antiradConsumables.put(spl[0], new KeyValuePair<>(12000, 30));
+                    continue;
+                }
+                try
+                {
+                    int i = Integer.parseInt(spl[1]);
+                    if(spl.length == 2)
+                    {
+                        antiradConsumables.put(spl[0], new KeyValuePair<>(12000, i));
+                        continue;
+                    }
+                    int mod = Integer.parseInt(spl[2]);
+                    antiradConsumables.put(spl[0], new KeyValuePair<>(i, mod));
+                }
+                catch (Exception ignored) { }
+            }
+        }
+        return antiradConsumables;
+    }
 
     public static void init(ForgeConfigSpec.Builder serverCfg, ForgeConfigSpec.Builder clientCfg)
     {
-        clientCfg.push("Client");
-        barSkin = clientCfg.comment("HUD pollution level bar SKIN variant.")
+        clientCfg.push("HUD");
+        barSkin = clientCfg.comment("HUD rad level bar SKIN variant.")
                 .defineEnum("bar_skin", BarSkins.RAD_YELLOW);
         clientCfg.pop();
 
         serverCfg.push("Balance");
         serverCfg.push("info");
-        barMode = serverCfg.comment("HUD pollution level bar DISPLAY MODE.")
+        barMode = serverCfg.comment("HUD rad level bar DISPLAY MODE.")
                 .defineEnum("bar_display_mode", BarDisplayModes.HAND);
         serverCfg.pop();
 
@@ -75,23 +127,48 @@ public class Configuration
         hazmatDurabilityMult = serverCfg.comment("Hazmat suit durability MULTIPLIER.\n" +
                 "Base armor durability values is [13,15,16,11].")
                 .defineInRange("hazmat_durability", 8, 1, Integer.MAX_VALUE);
-        hazmatRadResist = serverCfg.comment("Hazmat suit rad resistance modifier value.")
-                .defineInRange("hazmat_rad_resist", 80, 0, 100);
+        suitList = serverCfg.comment("Items in this list will grant player resistance to polluton exposure.\n" +
+                "Affects only items that can be placed in player armor slots.\n" +
+                "Player will get the resistance ONLY if full suit of such items is equipped.\n" +
+                "Total suit resistance value is equals to average value of all items.\n" +
+                "SYNTAX: '<modid>:<item>,<resistance>'\n" +
+                "The <resistance> is value between 0 and 100 (inclusive).\n" +
+                "The 0 resistance value item will not protect player from pollution exposure.")
+                .defineList("antirad_equipment", ImmutableList.of(
+                        "thrad:hazmat_helmet,80",
+                        "thrad:hazmat_chestplate,80",
+                        "thrad:hazmat_leggings,80",
+                        "thrad:hazmat_boots,80"
+                ), isStringIntegerPair);
+        antiradList = serverCfg.comment("Items in this list will give player a rad resistance effect when used.\n" +
+                "SYNTAX: '<modid>:<item>,<effect_duration>,<effect_amplifier>'\n" +
+                "        '<modid>:<item>,<effect_amplifier>'  (<effect_duration_ticks> will be equal to 12000)\n" +
+                "        '<modid>:<item>'                       (<effect_duration_ticks> will be equal to 12000 and <effect_amplifier> will be equal to 2)\n" +
+                "The <effect_amplifier> is value between 0 and 9 (inclusive). Each level adds 10 points to total attribute modifier.")
+                .defineList("antirad_consumables", ImmutableList.of("thrad:iodine_tablet,12000,2"), obj -> true);
         serverCfg.pop();
 
         serverCfg.push("effects");
+        serverCfg.push("exposure");
         maxExposure = serverCfg.comment("The maximum value of exposure for all dimensions and biomes.\n" +
                 "Keeping this value about 2 LESS than 'Balance.cover.max_cover_thickness' is RECOMMENDED for proper system behaviour.")
                 .defineInRange("max_exposure", 5, 1, Integer.MAX_VALUE);
         exposureDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the EXPOSURE effect when he is in an UNCOVERED POLLUTED area.")
                 .defineInRange("exposure_duration", 600, 60, Integer.MAX_VALUE);
+        serverCfg.pop();
         serverCfg.push("cells_destruction");
         cdDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the CELLS DESTRUCTION effect.\n" +
                 "when reaches certain 'effects.cells_destruction.required_rad_levels' RAD LEVEL.")
                 .defineInRange("duration", 1200, 60, Integer.MAX_VALUE);
         cdRequiredRadLevel = serverCfg.comment("LIST of RAD LEVELS REQUIRED for APPLYING a 'Cells Destruction' EFFECT of I, II, III and IV amplifier.")
                 .comment("SYNTAX: [<min rad level for t1>,<min rad level for t2>,<min rad level for t3>,<min rad level for t4>]")
-                .define("required_rad_levels", Lists.newArrayList(50, 100, 150, 185));
+                .define("required_rad_levels", Lists.newArrayList(80, 120, 160, 190));
+        cdBaseHurtChance = serverCfg.comment("BASE cells destruction SUB EFFECTS applying CHANCE.\n" +
+                "Always used with the multiplier equal to the current 'Cells Destruction' effect amplifier.")
+                .defineInRange("subeffects_chance", 200, 1, 10000);
+        cdTickDelay = serverCfg.comment("BASE DELAY in ticks between 'Cells Destruction' effect UPDATE cycle ITERATIONS.\n" +
+                "Divided by 2 for every amplifier level.")
+                .defineInRange("tick_delay", 160, 1, Integer.MAX_VALUE);
         serverCfg.push("subeffects");
         allowWeakness = serverCfg.comment("If TRUE the RADIATION will be able to cause WEAKNESS effect to player.")
                 .define("allow_weakness", true);
@@ -104,24 +181,16 @@ public class Configuration
         cdSubeffectsDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the CELLS DESTRUCTION effect SUB EFFECTS.")
                 .defineInRange("subeffects_duration", 600, 60, Integer.MAX_VALUE);
         serverCfg.pop();
-        cdBaseHurtChance = serverCfg.comment("BASE cells destruction SUB EFFECTS applying CHANCE.\n" +
-                "Always used with the multiplier equal to the current 'Cells Destruction' effect amplifier.")
-                .defineInRange("subeffects_chance", 200, 1, 10000);
-        cdTickDelay = serverCfg.comment("BASE DELAY in ticks between 'Cells Destruction' effect UPDATE cycle ITERATIONS.\n" +
-                "Divided by 2 for every amplifier level.")
-                .defineInRange("tick_delay", 160, 1, Integer.MAX_VALUE);
         serverCfg.pop();
         serverCfg.pop();
 
         serverCfg.push("measurements");
-        minRadLevel = serverCfg.comment("The minimum pollution value.")
+        minRadLevel = serverCfg.comment("The minimum rad value measured.")
                 .defineInRange("min_rad_level", 0, 0, Integer.MAX_VALUE);
-        maxRadLevel = serverCfg.comment("The maximum pollution value.")
+        maxRadLevel = serverCfg.comment("The maximum rad value measured.")
                 .defineInRange("max_rad_level", 200, 100, Integer.MAX_VALUE);
-        defaultRadLevel = serverCfg.comment("Default pollution level.")
+        defaultRadLevel = serverCfg.comment("Default PLAYER rad level.")
                 .defineInRange("default_rad_level", 10, 0, Integer.MAX_VALUE);
-        fullBarReachTime = serverCfg.comment("TIME in ticks for which the HUD pollution level BAR being completely FILLED.")
-                .defineInRange("full_bar_reach_time", 6000, 100, Integer.MAX_VALUE);
         serverCfg.pop();
 
         serverCfg.push("world");
@@ -143,9 +212,12 @@ public class Configuration
                 .defineInRange("max_cover_thickness", 7, 0, 255);
         serverCfg.pop();
 
-        serverCfg.push("random");
-        radLevelDecreaseChance = serverCfg.comment("The chance of pollution level to be decreased by 1 while the player is in safe zone.")
-                .defineInRange("rad_decrease_chance", 100, 0, 10000);
+        serverCfg.push("misc");
+        fullBarReachTime = serverCfg.comment("TIME in ticks for which the HUD rad level BAR being completely FILLED.")
+                .defineInRange("full_bar_reach_time", 6000, 100, Integer.MAX_VALUE);
+        radLevelNaturalDecrDelay = serverCfg.comment("The TIME in ticks between RAD level NATURAL DECREASE cycles.\n" +
+                "Only works while the player is in safe zone.")
+                .defineInRange("rad_decrease_delay", 100, 0, Integer.MAX_VALUE);
         serverCfg.pop();
         serverCfg.pop();
 
@@ -153,7 +225,7 @@ public class Configuration
         dimensionsBlacklist = serverCfg.comment("If TRUE dimensions list will be used as BLACKLIST.")
                 .define("blacklist", true);
         dimensionsList = serverCfg.comment("Dimensions with these ids will not be polluted if 'dimensions.blacklist' is true. Otherwise only they will be.")
-                .defineList("polluted_dimensions", (Supplier<List<? extends String>>) ArrayList::new, s -> s instanceof String);
+                .defineList("polluted_dimensions", ImmutableList.of(), s -> s instanceof String);
         serverCfg.pop();
 
         serverCfg.push("Biomes");
@@ -164,35 +236,35 @@ public class Configuration
                 "If the exposure level is undefined, the 'balance.maxExposure' will be used.\n" +
                 "In BLACKLIST mode unlisted biomes will use 'balance.maxExposure'.\n" +
                 "FORMAT: \"<modid>:<biome>,<exposure_level>\"")
-                .defineList("polluted_biomes", (Supplier<List<? extends String>>) ArrayList::new, s -> {
-                    if(!(s instanceof String)) return false;
-                    String[] spl = ((String) s).split(",");
-                    if(spl.length == 1) return true;
-                    if(spl.length < 1 || spl.length > 2) return false;
-                    try
-                    {
-                        Integer.parseInt(spl[1]);
-                        return true;
-                    }
-                    catch (NumberFormatException e) { return false; }
-                });
+                .defineList("polluted_biomes", ImmutableList.of(), isStringIntegerPair);
         serverCfg.pop();
     }
+
+    private static final Predicate<Object> isStringIntegerPair = s -> {
+        if(!(s instanceof String)) return false;
+        String[] spl = ((String) s).split(",");
+        if(spl.length == 1) return true;
+        try
+        {
+            Integer.parseInt(spl[1]);
+            return true;
+        }
+        catch (Exception e) { return false; }
+    };
 
     /**Called immediately after loading the configuration file.*/
     public static void postLoad(UnmodifiableConfig file)
     {
-        biomesList = getBiomesSettings();
+
     }
 
-    /**Use of {@link Configuration#biomesList} field instead of this method is recommended.*/
-    public static Map<String, Integer> getBiomesSettings()
+    private static Map<String, Integer> convertConfigList(List<? extends String> list, int defVal)
     {
         Map<String, Integer> res = Maps.newHashMap();
-        for (String s : biomesSettings.get())
+        for (String s : list)
         {
             String[] spl = s.split(",");
-            res.put(spl[0], spl.length > 1 ? Integer.valueOf(spl[1]) : maxExposure.get());
+            res.put(spl[0], spl.length > 1 ? Integer.parseInt(spl[1]) : defVal);
         }
         return res;
     }
@@ -214,17 +286,17 @@ public class Configuration
         NEVER(p -> false),
         HAND(p -> {
             for (InteractionHand hand : InteractionHand.values())
-                if(p.getItemInHand(hand).getItem() == RegistryHandler.RAD_METER.get())
+                if(p.getItemInHand(hand).getItem() == RegistryHandler.ITEM_RAD_METER.get())
                     return true;
             return false;
         }),
         TOOLBAR(p -> {
             for (int i = 0; i < Inventory.getSelectionSize(); i++)
-                if(p.getInventory().items.get(i).getItem() == RegistryHandler.RAD_METER.get())
+                if(p.getInventory().items.get(i).getItem() == RegistryHandler.ITEM_RAD_METER.get())
                     return true;
             return false;
         }),
-        INVENTORY(p -> p.getInventory().contains(new ItemStack(RegistryHandler.RAD_METER.get()))),
+        INVENTORY(p -> p.getInventory().contains(new ItemStack(RegistryHandler.ITEM_RAD_METER.get()))),
         ALWAYS(p -> true);
 
         private final Function<Player, Boolean> shouldDisplayCheck;

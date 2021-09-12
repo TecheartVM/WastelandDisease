@@ -14,7 +14,6 @@ import techeart.thrad.compat.CompatCurios;
 import techeart.thrad.config.ConfigHandler;
 import techeart.thrad.network.PacketHandler;
 import techeart.thrad.utils.EventHandler;
-import techeart.thrad.utils.RegistryHandler;
 
 @Mod("thrad")
 public class MainClass

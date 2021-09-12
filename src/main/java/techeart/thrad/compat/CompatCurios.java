@@ -1,12 +1,10 @@
 package techeart.thrad.compat;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.InterModComms;
-import techeart.thrad.items.HazmatSuitItem;
-import techeart.thrad.utils.RegistryHandler;
+import techeart.thrad.RegistryHandler;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotTypeMessage;
 import top.theillusivec4.curios.api.SlotTypePreset;
@@ -33,16 +31,7 @@ public class CompatCurios implements ICompatModule
         return getItemInCurios(
                 entity,
                 SlotTypePreset.BELT,
-                stack -> stack.getItem() == RegistryHandler.RAD_METER.get()
-        );
-    }
-
-    public static boolean hasFullHazmatSuit(LivingEntity entity)
-    {
-        Predicate<ItemStack> filter = stack -> stack.getItem() instanceof HazmatSuitItem;
-        return !(
-                getItemInCurios(entity, SlotTypePreset.HEAD, filter).isEmpty() ||
-                getItemInCurios(entity, SlotTypePreset.BODY, filter).isEmpty()
+                stack -> stack.getItem() == RegistryHandler.ITEM_RAD_METER.get()
         );
     }
 
