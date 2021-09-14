@@ -44,8 +44,8 @@ public class Configuration
     public static ForgeConfigSpec.IntValue maxDistToNextLayer;
     public static ForgeConfigSpec.IntValue maxLayerChecks;
     public static ForgeConfigSpec.IntValue maxCoverThickness;
-    public static ForgeConfigSpec.IntValue maxExposure;
-    public static ForgeConfigSpec.IntValue exposureDuration;
+    public static ForgeConfigSpec.IntValue maxImpactLevel;
+    public static ForgeConfigSpec.IntValue impactEffectDuration;
     public static ForgeConfigSpec.IntValue fullBarReachTime;
     public static ForgeConfigSpec.IntValue radLevelNaturalDecrDelay;
     public static ForgeConfigSpec.IntValue cdDuration;
@@ -66,7 +66,7 @@ public class Configuration
     public static Map<String, Integer> getBiomesList()
     {
         if(biomesList == null)
-            biomesList = convertConfigList(biomesSettings.get(), maxExposure.get());
+            biomesList = convertConfigList(biomesSettings.get(), maxImpactLevel.get());
         return biomesList;
     }
 
@@ -127,13 +127,13 @@ public class Configuration
         hazmatDurabilityMult = serverCfg.comment("Hazmat suit durability MULTIPLIER.\n" +
                 "Base armor durability values is [13,15,16,11].")
                 .defineInRange("hazmat_durability", 8, 1, Integer.MAX_VALUE);
-        suitList = serverCfg.comment("Items in this list will grant player resistance to polluton exposure.\n" +
+        suitList = serverCfg.comment("Items in this list will grant player resistance to polluton impact.\n" +
                 "Affects only items that can be placed in player armor slots.\n" +
                 "Player will get the resistance ONLY if full suit of such items is equipped.\n" +
                 "Total suit resistance value is equals to average value of all items.\n" +
                 "SYNTAX: '<modid>:<item>,<resistance>'\n" +
                 "The <resistance> is value between 0 and 100 (inclusive).\n" +
-                "The 0 resistance value item will not protect player from pollution exposure.")
+                "The 0 resistance value item will not protect player from pollution impact.")
                 .defineList("antirad_equipment", ImmutableList.of(
                         "thrad:hazmat_helmet,80",
                         "thrad:hazmat_chestplate,80",
@@ -145,16 +145,16 @@ public class Configuration
                 "        '<modid>:<item>,<effect_amplifier>'  (<effect_duration_ticks> will be equal to 12000)\n" +
                 "        '<modid>:<item>'                       (<effect_duration_ticks> will be equal to 12000 and <effect_amplifier> will be equal to 2)\n" +
                 "The <effect_amplifier> is value between 0 and 9 (inclusive). Each level adds 10 points to total attribute modifier.")
-                .defineList("antirad_consumables", ImmutableList.of("thrad:iodine_tablet,12000,2"), obj -> true);
+                .defineList("antirad_consumables", ImmutableList.of("thrad:iodine_tablet,12000,2", "minecraft:dried_kelp,3000,1"), obj -> true);
         serverCfg.pop();
 
         serverCfg.push("effects");
-        serverCfg.push("exposure");
-        maxExposure = serverCfg.comment("The maximum value of exposure for all dimensions and biomes.\n" +
+        serverCfg.push("environmental_impact");
+        maxImpactLevel = serverCfg.comment("The maximum value of env. impact for all dimensions and biomes.\n" +
                 "Keeping this value about 2 LESS than 'Balance.cover.max_cover_thickness' is RECOMMENDED for proper system behaviour.")
-                .defineInRange("max_exposure", 5, 1, Integer.MAX_VALUE);
-        exposureDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the EXPOSURE effect when he is in an UNCOVERED POLLUTED area.")
-                .defineInRange("exposure_duration", 600, 60, Integer.MAX_VALUE);
+                .defineInRange("max_impact", 5, 1, Integer.MAX_VALUE);
+        impactEffectDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the IMPACT effect when he is in an UNCOVERED POLLUTED area.")
+                .defineInRange("impact_duration", 600, 60, Integer.MAX_VALUE);
         serverCfg.pop();
         serverCfg.push("cells_destruction");
         cdDuration = serverCfg.comment("The TIME in TICKS for which the PLAYER will get the CELLS DESTRUCTION effect.\n" +
@@ -207,8 +207,8 @@ public class Configuration
                 .defineInRange("next_layer_distance", 6, 3, 20);
         maxLayerChecks = serverCfg.comment("How many TIMES the system will try to find ADDITIONAL LAYER of player COVER.")
                 .defineInRange("max_layer_checks", 10, 1, 20);
-        maxCoverThickness = serverCfg.comment("The maximum AMOUNT of COVER LAYERS that WILL AFFECT a total EXPOSURE to the player.\n" +
-                "Keeping this value about 2 MORE than 'Balance.effects.max_exposure' is RECOMMENDED for proper system behaviour.")
+        maxCoverThickness = serverCfg.comment("The maximum AMOUNT of COVER LAYERS that WILL AFFECT a total IMPACT to the player.\n" +
+                "Keeping this value about 2 MORE than 'Balance.effects.max_impact' is RECOMMENDED for proper system behaviour.")
                 .defineInRange("max_cover_thickness", 7, 0, 255);
         serverCfg.pop();
 
@@ -232,10 +232,10 @@ public class Configuration
         biomesBlacklist = serverCfg.comment("If TRUE biomes list will be used as BLACKLIST.")
                 .define("blacklist", true);
         biomesSettings = serverCfg.comment("Biomes with these ids will not be polluted if 'biomes.blacklist' is true.\n" +
-                "Otherwise only these biomes will be polluted with the specified exposure level.\n" +
-                "If the exposure level is undefined, the 'balance.maxExposure' will be used.\n" +
-                "In BLACKLIST mode unlisted biomes will use 'balance.maxExposure'.\n" +
-                "FORMAT: \"<modid>:<biome>,<exposure_level>\"")
+                "Otherwise only these biomes will be polluted with the specified impact level.\n" +
+                "If the impact level is undefined, the 'balance.maxImpact' will be used.\n" +
+                "In BLACKLIST mode unlisted biomes will use 'balance.maxImpact'.\n" +
+                "FORMAT: \"<modid>:<biome>,<impact_level>\"")
                 .defineList("polluted_biomes", ImmutableList.of(), isStringIntegerPair);
         serverCfg.pop();
     }

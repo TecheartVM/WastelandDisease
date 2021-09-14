@@ -17,7 +17,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import techeart.thrad.commands.CommandRadLevelAction;
 import techeart.thrad.effects.EffectCellsDestruction;
-import techeart.thrad.effects.EffectExposure;
+import techeart.thrad.effects.EffectEnvironmentalImpact;
 import techeart.thrad.effects.EffectRadResistance;
 import techeart.thrad.items.HazmatSuitItem;
 
@@ -45,7 +45,7 @@ public class RegistryHandler
 
     /*------------Effects------------*/
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, MainClass.MODID);
-    public static final RegistryObject<MobEffect> EFFECT_EXPOSURE = EFFECTS.register("exposure", EffectExposure::new);
+    public static final RegistryObject<MobEffect> EFFECT_ENV_IMPACT = EFFECTS.register("environmental_impact", EffectEnvironmentalImpact::new);
     public static final RegistryObject<MobEffect> EFFECT_CELLS_DESTRUCTION = EFFECTS.register("cells_destruction", EffectCellsDestruction::new);
     public static final RegistryObject<MobEffect> EFFECT_RAD_RESISTANCE = EFFECTS.register("rad_resistance", () -> new EffectRadResistance().addAttributeModifier(
             ATTR_RAD_RESISTANCE.get(), "8522920c-69d5-4d0b-8341-d2dae6774534", 10.0d, AttributeModifier.Operation.ADDITION

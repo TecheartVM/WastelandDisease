@@ -11,9 +11,9 @@ import techeart.thrad.RadiationManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EffectExposure extends MobEffect
+public class EffectEnvironmentalImpact extends MobEffect
 {
-    public EffectExposure() { super(MobEffectCategory.HARMFUL, 0x77ff00); }
+    public EffectEnvironmentalImpact() { super(MobEffectCategory.HARMFUL, 0x77ff00); }
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier)
@@ -28,8 +28,8 @@ public class EffectExposure extends MobEffect
         int i = Configuration.maxRadLevel.get() - Configuration.minRadLevel.get();
         float f = i / (float)Configuration.fullBarReachTime.get();
         i = (int) Math.ceil(1/f);
-        if(amplifier <= Configuration.maxExposure.get()) i = i << (Configuration.maxExposure.get() - amplifier);
-        else i = i >> amplifier - Configuration.maxExposure.get();
+        if(amplifier <= Configuration.maxImpactLevel.get()) i = i << (Configuration.maxImpactLevel.get() - amplifier);
+        else i = i >> amplifier - Configuration.maxImpactLevel.get();
         return i <= 0 || duration % i == i - 1;
     }
 

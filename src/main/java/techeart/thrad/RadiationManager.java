@@ -43,7 +43,7 @@ public class RadiationManager
         {
             BlockPos headPos = player.blockPosition().above();
             exposure = getExposureAtPos(player.level, headPos);
-            exposure -= Math.round((float)radResist / (100f / Configuration.maxExposure.get()));
+            exposure -= Math.round((float)radResist / (100f / Configuration.maxImpactLevel.get()));
         }
 
         updateRadLevel(player, exposure);
@@ -52,7 +52,7 @@ public class RadiationManager
 
     private static void updateRadLevel(Player player, int exposure)
     {
-        MobEffectInstance curEffect = player.getEffect(RegistryHandler.EFFECT_EXPOSURE.get());
+        MobEffectInstance curEffect = player.getEffect(RegistryHandler.EFFECT_ENV_IMPACT.get());
         if(curEffect != null && curEffect.getAmplifier() >= exposure) return;
         if(exposure < 0)
         {
@@ -67,8 +67,8 @@ public class RadiationManager
         else
         {
             player.addEffect(new MobEffectInstance(
-                    RegistryHandler.EFFECT_EXPOSURE.get(),
-                    Configuration.exposureDuration.get(),
+                    RegistryHandler.EFFECT_ENV_IMPACT.get(),
+                    Configuration.impactEffectDuration.get(),
                     exposure,
                     false,
                     false,
@@ -115,7 +115,7 @@ public class RadiationManager
         if(dimensionListed) { if(Configuration.dimensionsBlacklist.get()) return -1; }
         else if(!Configuration.dimensionsBlacklist.get()) return -1;
 
-        int curExposure = Configuration.maxExposure.get();
+        int curExposure = Configuration.maxImpactLevel.get();
 
         /*----------------check for biome----------------*/
         ResourceLocation biomeRL = world.getBiome(pos).getRegistryName();
@@ -128,7 +128,7 @@ public class RadiationManager
                 if(e.getKey().equals(biomeId))
                 {
                     biomeListed = true;
-                    curExposure = Math.min(e.getValue(), Configuration.maxExposure.get());
+                    curExposure = Math.min(e.getValue(), Configuration.maxImpactLevel.get());
                     break;
                 }
             }

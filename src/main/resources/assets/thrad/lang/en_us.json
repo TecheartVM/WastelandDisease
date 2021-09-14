@@ -6,7 +6,7 @@
   "item.thrad.hazmat_leggings": "Hazmat Leggings",
   "item.thrad.hazmat_boots": "Hazmat Boots",
 
-  "effect.thrad.exposure": "Environment Exposure",
+  "effect.thrad.environmental_impact": "Env. Impact",
   "effect.thrad.cells_destruction": "Cells Destruction",
   "effect.thrad.rad_resistance": "Resistance",
 
