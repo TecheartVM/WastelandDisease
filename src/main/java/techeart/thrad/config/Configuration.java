@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec;
+import techeart.thrad.MainClass;
 import techeart.thrad.utils.KeyValuePair;
 import techeart.thrad.RegistryHandler;
 
@@ -117,6 +118,9 @@ public class Configuration
                 .defineEnum("bar_skin", BarSkins.RAD_YELLOW);
         clientCfg.pop();
 
+//        serverCfg.comment("This config is per-world.\n" +
+//                "To configure the mod edit the file in 'YourWorldFolder/serverconfig/"+ MainClass.CONFIG_FILE_NAME +"-server.toml'.\n" +
+//                "If there is no such file in your world folder, you can copy it from the general config folder.");
         serverCfg.push("Balance");
         serverCfg.push("info");
         barMode = serverCfg.comment("HUD rad level bar DISPLAY MODE.")

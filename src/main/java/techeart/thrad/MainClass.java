@@ -19,7 +19,7 @@ import techeart.thrad.utils.EventHandler;
 public class MainClass
 {
     public static final String MODID = "thrad";
-    private static final String CONFIG_FILE_NAME = "thrad";
+    public static final String CONFIG_FILE_NAME = "thrad";
 
     public static final Logger LOGGER = LogManager.getLogger();
 
