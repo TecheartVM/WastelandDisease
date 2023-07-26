@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "gig",
+    "gsg",
+    "glg"
+  ],
+  "key":
+  {
+    "g": {"tag": "forge:ingots/gold"},
+    "i": {"tag": "forge:ingots/iron"},
+    "s": {"tag": "forge:glass"},
+    "l": {"item": "minecraft:redstone_lamp"}
+  },
+  "result":
+  {
+    "item": "wastelanddisease:rad_meter",
+    "count": 1
+  }
+}

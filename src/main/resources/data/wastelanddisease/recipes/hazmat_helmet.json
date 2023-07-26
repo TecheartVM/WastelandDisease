@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "shd",
+    "gkg",
+    "ipi"
+  ],
+  "key":
+  {
+    "g": {"tag": "forge:glass_panes"},
+    "i": {"tag": "forge:nuggets/iron"},
+    "s": {"tag": "forge:slimeballs"},
+    "d": {"tag": "forge:dyes/cyan"},
+    "p": {"item": "minecraft:paper"},
+    "k": {"item": "minecraft:dried_kelp"},
+    "h": {"item": "minecraft:leather_helmet"}
+  },
+  "result":
+  {
+    "item": "wastelanddisease:hazmat_helmet",
+    "count": 1
+  }
+}

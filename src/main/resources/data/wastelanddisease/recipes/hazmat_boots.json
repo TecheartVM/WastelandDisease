@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "d d",
+    "ibi",
+    "s s"
+  ],
+  "key":
+  {
+    "i": {"tag": "forge:nuggets/iron"},
+    "s": {"tag": "forge:slimeballs"},
+    "d": {"tag": "forge:dyes/black"},
+    "b": {"item": "minecraft:leather_boots"}
+  },
+  "result":
+  {
+    "item": "wastelanddisease:hazmat_boots",
+    "count": 1
+  }
+}

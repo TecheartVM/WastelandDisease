@@ -1,0 +1,22 @@
+{
+  "item.wastelanddisease.rad_meter": "Pollution Level Meter",
+  "item.wastelanddisease.iodine_tablet": "Iodine Tablet",
+  "item.wastelanddisease.hazmat_helmet": "Hazmat Helmet",
+  "item.wastelanddisease.hazmat_chestplate": "Hazmat Jacket",
+  "item.wastelanddisease.hazmat_leggings": "Hazmat Leggings",
+  "item.wastelanddisease.hazmat_boots": "Hazmat Boots",
+
+  "effect.wastelanddisease.environmental_impact": "Env. Impact",
+  "effect.wastelanddisease.cells_destruction": "Cells Destruction",
+  "effect.wastelanddisease.rad_resistance": "Resistance",
+
+  "death.attack.cells_destruction": "%1$s died due to organ failure",
+
+  "command.wastelanddisease.rad_level.set.multiple": "Set rad level of %s players to %s",
+  "command.wastelanddisease.rad_level.set.single": "Set rad level of %s to %s",
+  "command.wastelanddisease.rad_level.reset.multiple": "Reset rad level of %s players",
+  "command.wastelanddisease.rad_level.reset.single": "Reset rad level of %s",
+  "command.wastelanddisease.rad_level.add.multiple": "Rad level of %s players increased by %s",
+  "command.wastelanddisease.rad_level.add.single": "Rad level of %s increased by %s",
+  "command.wastelanddisease.rad_level.get": "Rad level of %s is equal to %s"
+}
